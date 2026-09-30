@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Consulta de Resultados · Informática: Word, Excel e Internet | SENA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --verde: #39a900;
+  --verde-dim: rgba(57,169,0,0.12);
+  --verde-oscuro: #185c37;
+  --rojo: #c0392b;
+  --rojo-dim: #fdecea;
+  --ambar: #b45309;
+  --ambar-dim: #fdf1e0;
+  --texto: #14201a;
+  --texto-dim: #4c5c53;
+  --texto-dimmer: #7c8b82;
+  --bg: #f3f6f4;
+  --blanco: #ffffff;
+  --borde: #dbe3de;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--texto); min-height:100vh; line-height:1.55; }
+
+/* TOPBAR */
+.topbar {
+  background:#14201a; padding:14px 24px;
+  display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  position:sticky; top:0; z-index:50; box-shadow:0 2px 12px rgba(0,0,0,0.25);
+}
+.sena-badge { background:var(--verde); color:#fff; font-weight:900; font-size:13px; padding:5px 11px; border-radius:7px; letter-spacing:1px; }
+.topbar-info .title { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; color:#fff; }
+.topbar-info .sub { font-size:11px; color:rgba(255,255,255,0.5); margin-top:1px; }
+
+/* HERO */
+.hero {
+  background: radial-gradient(ellipse 640px 320px at 20% -10%, rgba(255,255,255,0.08), transparent 60%),
+              linear-gradient(150deg, #0d2b1a 0%, #185c37 45%, #217346 100%);
+  padding:48px 22px 40px; text-align:center; color:#fff;
+}
+.hero-badge {
+  display:inline-flex; align-items:center; gap:7px; background:rgba(255,255,255,0.1);
+  border:1px solid rgba(255,255,255,0.2); padding:6px 16px; border-radius:30px;
+  font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:16px;
+}
+.hero h1 { font-family:'Syne',sans-serif; font-size:clamp(22px,4.5vw,32px); font-weight:800; margin-bottom:8px; }
+.hero p { font-size:14px; color:rgba(255,255,255,0.78); max-width:520px; margin:0 auto; }
+
+/* MAIN */
+.main { max-width:620px; margin:0 auto; padding:28px 18px 60px; }
+
+/* BUSCADOR */
+.buscador-card {
+  background:var(--blanco); border-radius:16px; padding:26px;
+  box-shadow:0 2px 6px rgba(13,43,26,0.06), 0 12px 32px rgba(13,43,26,0.08);
+  border:1px solid var(--borde);
+}
+.buscador-card h2 { font-family:'Syne',sans-serif; font-size:17px; font-weight:800; margin-bottom:6px; }
+.buscador-card p.hint { font-size:13px; color:var(--texto-dim); margin-bottom:18px; }
+.select-wrap { position:relative; }
+select#selectorNombre {
+  width:100%; padding:13px 40px 13px 16px; border:1.5px solid var(--borde); border-radius:10px;
+  font-family:'Inter',sans-serif; font-size:14px; color:var(--texto); background:var(--blanco);
+  appearance:none; cursor:pointer; outline:none; transition:border-color .15s;
+}
+select#selectorNombre:focus { border-color:var(--verde); box-shadow:0 0 0 3px rgba(57,169,0,0.12); }
+.select-wrap::after {
+  content:'▾'; position:absolute; right:16px; top:50%; transform:translateY(-50%);
+  color:var(--texto-dimmer); pointer-events:none; font-size:14px;
+}
+
+/* RESULTADO */
+#resultado { display:none; margin-top:22px; }
+#resultado.show { display:block; }
+
+.estado-banner {
+  border-radius:14px; padding:22px 24px; text-align:center; margin-bottom:20px;
+}
+.estado-banner.aprobado { background:var(--verde-dim); border:1.5px solid var(--verde); }
+.estado-banner.no-aprobado { background:var(--rojo-dim); border:1.5px solid var(--rojo); }
+.estado-icono { font-size:40px; margin-bottom:8px; display:block; }
+.estado-texto { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; }
+.estado-banner.aprobado .estado-texto { color:var(--verde-oscuro); }
+.estado-banner.no-aprobado .estado-texto { color:var(--rojo); }
+.estado-nombre { font-size:13px; color:var(--texto-dim); margin-top:6px; }
+.estado-nombre strong { color:var(--texto); }
+
+.criterios-grid { display:flex; flex-direction:column; gap:10px; margin-bottom:18px; }
+.criterio-item {
+  background:var(--blanco); border:1.5px solid var(--borde); border-radius:12px;
+  padding:14px 16px; display:flex; gap:12px; align-items:flex-start;
+}
+.criterio-item.ok { border-color:rgba(57,169,0,0.3); background:rgba(57,169,0,0.04); }
+.criterio-item.warn { border-color:rgba(180,83,9,0.3); background:var(--ambar-dim); }
+.criterio-item.fail { border-color:rgba(192,57,43,0.3); background:var(--rojo-dim); }
+.criterio-icono { font-size:18px; flex-shrink:0; margin-top:1px; }
+.criterio-body .criterio-titulo { font-size:13px; font-weight:700; color:var(--texto); margin-bottom:3px; }
+.criterio-body .criterio-detalle { font-size:12.5px; color:var(--texto-dim); line-height:1.5; }
+
+.observacion-box {
+  background:var(--ambar-dim); border-left:3px solid var(--ambar); border-radius:0 10px 10px 0;
+  padding:14px 16px; font-size:13px; color:var(--texto); line-height:1.6; margin-bottom:14px;
+}
+.observacion-box strong { color:var(--ambar); }
+
+.pendiente-box {
+  background:var(--rojo-dim); border-left:3px solid var(--rojo); border-radius:0 10px 10px 0;
+  padding:14px 16px; font-size:13px; color:var(--texto); line-height:1.6; margin-bottom:14px;
+}
+.pendiente-box strong { color:var(--rojo); }
+
+.ficha-info {
+  background:var(--bg); border-radius:10px; padding:14px 16px; font-size:12px;
+  color:var(--texto-dimmer); line-height:1.7; margin-top:18px;
+}
+.ficha-info strong { color:var(--texto-dim); }
+
+.sin-resultado {
+  text-align:center; padding:20px; color:var(--texto-dimmer); font-size:13px;
+}
+
+/* FOOTER */
+footer { background:#14201a; text-align:center; padding:22px; font-size:11.5px; color:rgba(255,255,255,0.45); line-height:1.8; }
+footer span { color:rgba(255,255,255,0.75); font-weight:600; }
+
+@media(max-width:480px){
+  .hero { padding:40px 18px 32px; }
+  .buscador-card { padding:20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="sena-badge">SENA</div>
+  <div class="topbar-info">
+    <div class="title">Informática: Word, Excel e Internet</div>
+    <div class="sub">Ficha 3616463 · Instituto María Auxiliadora</div>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">📋 Consulta de resultados</div>
+  <h1>Resultado del Curso</h1>
+  <p>Busca tu nombre en la lista para ver tu resultado final y las observaciones de tu portafolio.</p>
+</div>
+
+<div class="main">
+
+  <div class="buscador-card">
+    <h2>🔍 Busca tu nombre</h2>
+    <p class="hint">Selecciona tu nombre completo de la lista desplegable.</p>
+    <div class="select-wrap">
+      <select id="selectorNombre" onchange="mostrarResultado()">
+        <option value="">— Selecciona tu nombre —</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="resultado"></div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>Informática: Microsoft Word, Excel e Internet · <span>Ficha 3616463</span></p>
+  <p>Centro Agroempresarial y Desarrollo Pecuario del Huila · <span>SENA</span></p>
+  <p>Instructor: <span>Julián Andrés Trujillo Morales</span></p>
+</footer>
+
+<script>
+const DATOS = [
+  { nombre:"ROSI YIRLEDY ALVAREZ BERNAL", cedula:"1077858400", estructura:"fail", word:"fail", powerpoint:"fail", excel:"fail", resultado:"no-aprobado", pendiente:"No se encontró carpeta ni evidencia entregada en Drive. No se recibió ninguna de las 3 actividades del curso." },
+  { nombre:"YULIANA SUAREZ BERMEO", cedula:"1078266250", estructura:"fail", word:"fail", powerpoint:"fail", excel:"fail", resultado:"no-aprobado", pendiente:"No se encontró carpeta ni evidencia entregada en Drive. No se recibió ninguna de las 3 actividades del curso." },
+  { nombre:"LUNA SOFIA MENDIETA ERAZO", cedula:"1082156843", estructura:"fail", word:"fail", powerpoint:"fail", excel:"fail", resultado:"no-aprobado", pendiente:"No se encontró carpeta ni evidencia entregada en Drive. No se recibió ninguna de las 3 actividades del curso." },
+  { nombre:"ADELAIDA VALENZUELA MORA", cedula:"1077873692", estructura:"ok", word:"ok", powerpoint:"fail", excel:"fail", resultado:"no-aprobado", pendiente:"Las subcarpetas de PowerPoint y Excel están vacías. Falta entregar la presentación y el ejercicio de Excel." },
+  { nombre:"ADRIANA DEL PILAR PASTRANA ARTUNDUAGA", cedula:"1080184745", estructura:"ok", word:"ok", powerpoint:"ok", excel:"ok", resultado:"aprobado" },
+  { nombre:"ALEXANDER ALVAREZ NUÑEZ", cedula:"1078266194", estructura:"ok", word:"ok", powerpoint:"ok", excel:"ok", resultado:"aprobado" },
+  { nombre:"ANA SOFIA GONZALEZ CERON", cedula:"1080183126", estructura:"ok", word:"ok", powerpoint:"fail", excel:"fail", resultado:"no-aprobado", pendiente:"Las subcarpetas de PowerPoint y Excel están vacías. Falta entregar la presentación y el ejercicio de Excel." },
+  { nombre:"ANA YULIETH OCHOA", cedula:"1077861586", estructura:"warn", word:"warn", powerpoint:"ok", excel:"ok", resultado:"aprobado", observacion:"Los archivos de Word (plantilla, cartas y tabla) están dentro de una subcarpeta adicional (\"COMBINACIÓN...\") en vez de sueltos directamente en 1. WORD. El contenido está completo — solo se recomienda reubicar los archivos para dejar la carpeta ordenada." },
+  { nombre:"ANGIE (ANYI) PAOLA ARTUNDUAGA CALDERON", cedula:"1004158471", estructura:"warn", word:"warn", powerpoint:"fail", excel:"ok", resultado:"no-aprobado", observacion:"Los archivos de Word están dentro de una subcarpeta adicional en vez de sueltos en 1. WORD.", pendiente:"En PowerPoint se subió solo un PDF exportado, no el archivo .pptx real de la presentación. Debes subir el archivo de PowerPoint (.pptx)." },
+  { nombre:"CRISTINA CALDERON URRIAGO", cedula:"1080183730", estructura:"ok", word:"ok", powerpoint:"ok", excel:"ok", resultado:"aprobado" },
+  { nombre:"DANNA SOFIA ESPAÑA VALENZUELA", cedula:"1016950214", estructura:"ok", word:"ok", powerpoint:"ok", excel:"ok", resultado:"aprobado" },
+  { nombre:"ELIANA CALDERON ALVARADO", cedula:"1077870455", estructura:"warn", word:"ok", powerpoint:"ok", excel:"ok", resultado:"aprobado", observacion:"El nombre de la subcarpeta \"1. WORD\" tiene un espacio extra al inicio. No afecta el contenido entregado." },
+  { nombre:"HELLEN DAYANA ORTIZ RODRIGUEZ", cedula:"1083887278", estructura:"warn", word:"warn", powerpoint:"ok", excel:"warn", resultado:"aprobado", observacion:"Los archivos de Word y el archivo de Excel están dentro de subcarpetas adicionales en vez de sueltos en sus carpetas correspondientes. El contenido está completo — se recomienda reubicar los archivos." },
+  { nombre:"INGRID KATHERINE JARA CAICEDO", cedula:"1080189691", estructura:"ok", word:"ok", powerpoint:"ok", excel:"ok", resultado:"aprobado" },
+  { nombre:"KATHERINE ANDRADE RODRIGUEZ", cedula:"1080187783", estructura:"ok", word:"warn", powerpoint:"fail", excel:"fail", resultado:"no-aprobado", observacion:"En Word solo se encontró 1 de los 2 archivos requeridos (falta el modelo/plantilla de notificación).", pendiente:"Falta el segundo archivo Word (plantilla de notificación). Las subcarpetas de PowerPoint y Excel están vacías — falta entregar la presentación y el ejercicio de Excel." },
+  { nombre:"LAURA LORENA CRUZ VARGAS", cedula:"1078266138", estructura:"ok", word:"ok", powerpoint:"ok", excel:"ok", resultado:"aprobado" },
+  { nombre:"LOREN YASMIN HERNÁNDEZ PERDOMO", cedula:"1080180690", estructura:"ok", word:"ok", powerpoint:"ok", excel:"ok", resultado:"aprobado" },
+  { nombre:"MABEL TATIANA CHILITO SALAMANCA", cedula:"1080360873", estructura:"ok", word:"ok", powerpoint:"ok", excel:"ok", resultado:"aprobado" },
+  { nombre:"MARIA CAMILA JARAMILLO LAMILLA", cedula:"1077853449", estructura:"ok", word:"ok", powerpoint:"ok", excel:"ok", resultado:"aprobado" },
+  { nombre:"MARIA ISABEL JARAMILLO LAMILLA", cedula:"1077853450", estructura:"ok", word:"ok", powerpoint:"ok", excel:"ok", resultado:"aprobado" },
+  { nombre:"MAYRA ALEJANDRA RAMOS BURBANO", cedula:"1007334219", estructura:"ok", word:"ok", powerpoint:"ok", excel:"ok", resultado:"aprobado", observacion:"La presentación se subió en formato .ppsx (presentación de inicio automático). Es un formato válido de PowerPoint; verifica que abra correctamente." },
+  { nombre:"MELANNY VALENTINA SANCHEZ SUAREZ", cedula:"1082157426", estructura:"ok", word:"ok", powerpoint:"ok", excel:"ok", resultado:"aprobado" },
+  { nombre:"NATALIA RIOS CASAMACHIN", cedula:"1081405396", estructura:"ok", word:"ok", powerpoint:"ok", excel:"ok", resultado:"aprobado" },
+  { nombre:"NORMA CONSTANZA FAJARDO CABRERA", cedula:"1004302015", estructura:"warn", word:"ok", powerpoint:"ok", excel:"ok", resultado:"aprobado", observacion:"Las subcarpetas no están numeradas (WORD / POWER POINT / EXCEL en vez de 1. WORD / 2. POWERPOINT / 3. EXCEL). El contenido está completo." },
+  { nombre:"PAOLA SARRIA TRUJILLO", cedula:"1082154571", estructura:"ok", word:"ok", powerpoint:"ok", excel:"ok", resultado:"aprobado" },
+  { nombre:"PAULA ANDREA CARDENAS BELTRAN", cedula:"1030688880", estructura:"ok", word:"ok", powerpoint:"ok", excel:"ok", resultado:"aprobado" },
+  { nombre:"SANDRA MILENA CALDERON SON", cedula:"1015456563", estructura:"ok", word:"ok", powerpoint:"ok", excel:"ok", resultado:"aprobado" },
+  { nombre:"VALENTINA NUÑEZ ALMARIO", cedula:"1081514834", estructura:"ok", word:"ok", powerpoint:"ok", excel:"ok", resultado:"aprobado" },
+  { nombre:"YADIRA REYES ZAMORA", cedula:"1080187951", estructura:"ok", word:"ok", powerpoint:"fail", excel:"fail", resultado:"no-aprobado", pendiente:"Las subcarpetas de PowerPoint y Excel están vacías. Falta entregar la presentación y el ejercicio de Excel." },
+  { nombre:"YAN CARLOS TELLEZ VARON", cedula:"1080189718", estructura:"ok", word:"ok", powerpoint:"ok", excel:"ok", resultado:"aprobado" },
+  { nombre:"YANDRY MICHELLE MUÑOZ MORENO", cedula:"1080363018", estructura:"ok", word:"ok", powerpoint:"ok", excel:"ok", resultado:"aprobado" },
+  { nombre:"YEIMY DANIELA ANACONA PAJOY", cedula:"1145724862", estructura:"ok", word:"ok", powerpoint:"ok", excel:"ok", resultado:"aprobado" },
+  { nombre:"YENNY LEONOR BARRIOS PERDOMO", cedula:"1012381160", estructura:"ok", word:"ok", powerpoint:"ok", excel:"ok", resultado:"aprobado" },
+  { nombre:"ÁNGELA ROCÍO RECTAVISCA CIFUENTES", cedula:"1016028847", estructura:"ok", word:"ok", powerpoint:"ok", excel:"ok", resultado:"aprobado" }
+];
+
+const CRITERIOS_META = {
+  estructura: { titulo:"Estructura de carpetas", detalle:"Carpeta con tu nombre completo y 3 subcarpetas: WORD, POWERPOINT y EXCEL." },
+  word: { titulo:"Actividad Word — Combinación de correspondencia", detalle:"2 archivos Word (plantilla y cartas finales) + 1 archivo Excel con la tabla de datos." },
+  powerpoint: { titulo:"Actividad PowerPoint", detalle:"1 archivo .pptx con la presentación." },
+  excel: { titulo:"Actividad Excel", detalle:"Archivo Excel con la tabla/inventario formateado." }
+};
+
+const ICONOS = { ok:"✅", warn:"⚠️", fail:"❌" };
+
+// Poblar el selector, ordenado alfabéticamente
+const selector = document.getElementById('selectorNombre');
+const listaOrdenada = [...DATOS].sort((a,b) => a.nombre.localeCompare(b.nombre, 'es'));
+listaOrdenada.forEach((persona, idx) => {
+  const opt = document.createElement('option');
+  opt.value = DATOS.indexOf(persona);
+  opt.textContent = persona.nombre;
+  selector.appendChild(opt);
+});
+
+function mostrarResultado() {
+  const idx = selector.value;
+  const cont = document.getElementById('resultado');
+  if (idx === "") {
+    cont.classList.remove('show');
+    cont.innerHTML = '';
+    return;
+  }
+  const p = DATOS[idx];
+  const aprobado = p.resultado === 'aprobado';
+
+  let html = '';
+
+  html += `<div class="estado-banner ${aprobado ? 'aprobado' : 'no-aprobado'}">
+    <span class="estado-icono">${aprobado ? '🎉' : '⚠️'}</span>
+    <div class="estado-texto">${aprobado ? 'APROBADO' : 'NO APROBADO'}</div>
+    <div class="estado-nombre"><strong>${p.nombre}</strong>${p.cedula ? ' · CC ' + p.cedula : ''}</div>
+  </div>`;
+
+  html += '<div class="criterios-grid">';
+  ['estructura','word','powerpoint','excel'].forEach(key => {
+    const estado = p[key];
+    const meta = CRITERIOS_META[key];
+    const clase = estado === 'ok' ? 'ok' : (estado === 'warn' ? 'warn' : 'fail');
+    html += `<div class="criterio-item ${clase}">
+      <span class="criterio-icono">${ICONOS[estado]}</span>
+      <div class="criterio-body">
+        <div class="criterio-titulo">${meta.titulo}</div>
+        <div class="criterio-detalle">${meta.detalle}</div>
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+
+  if (p.observacion) {
+    html += `<div class="observacion-box">⚠️ <strong>Observación:</strong> ${p.observacion}</div>`;
+  }
+  if (p.pendiente) {
+    html += `<div class="pendiente-box">❌ <strong>Qué te falta:</strong> ${p.pendiente}</div>`;
+  }
+
+  html += `<div class="ficha-info">
+    <strong>Programa:</strong> Informática: Microsoft Word, Excel e Internet<br>
+    <strong>Ficha:</strong> 3616463 · <strong>Modalidad:</strong> Virtual, jornada nocturna<br>
+    <strong>Fechas:</strong> 8 al 23 de septiembre de 2026<br>
+    <strong>Instructor:</strong> Julián Andrés Trujillo Morales<br><br>
+    Si tienes dudas sobre tu resultado, escribe al instructor.
+  </div>`;
+
+  cont.innerHTML = html;
+  cont.classList.add('show');
+  cont.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+</script>
+</body>
+</html>
